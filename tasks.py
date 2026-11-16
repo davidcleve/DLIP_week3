@@ -79,17 +79,21 @@ print(compute_output_size_2d(input_matrix, kernel_matrix))
 def convolute_2d(input_matrix, kernel_matrix):
     # Tip: same tips as above, but you might need a nested loop here in order to
     # define which parts of the input matrix need to be multiplied with the kernel matrix.
-    out_height, out_width = compute_output_size_2d(input_matrix, kernel_matrix)
-    kernel_height = np.size(kernel_matrix, 0)
-    kernel_width = np.size(kernel_matrix, 1)
-
-    convolution = np.zeros((out_height, out_width))
-    for i in range(out_height):
-        for j in range(out_width):
-            # Select the patch of the input that sits under the kernel
-            patch = input_matrix[i:i + kernel_height, j:j + kernel_width]
-            # Multiply element-wise and sum
-            convolution[i, j] = np.sum(patch * kernel_matrix)
+    size = compute_output_size_2d(input_matrix, kernel_matrix)
+    convolution = np.empty(size)
+    height_conv = size[0]
+    width_conv = size[1]
+    height_kernel = np.size(kernel_matrix, 0)
+    width_kernel = np.size(kernel_matrix, 1)
+    for col in range(width_conv):
+        for row in range(height_conv):
+            matrix_part = input_matrix[row:(row + height_kernel), col:(col + width_kernel)]
+            matrix_part_height = np.size(matrix_part, 0)
+            dot_products_row = [0] * matrix_part_height
+            for row_part in range(matrix_part_height):
+                dot_products_row[row_part] = np.dot(matrix_part[row_part], kernel_matrix[row_part])
+            dot_product = sum(dot_products_row)
+            convolution[row, col] = dot_product
     return convolution
 # -----------------------------------------------
 # Example:
@@ -98,4 +102,4 @@ input_matrix = np.array([[1, 2, 3, 4, 5],
                          [5, 8, 1, 4, 6]])
 kernel_matrix = np.array([[1, 0, -1],
                           [1, 0, -1]])
-convolute_2d(input_matrix, kernel_matrix)
+print(convolute_2d(input_matrix, kernel_matrix))
